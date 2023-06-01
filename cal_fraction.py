@@ -93,7 +93,7 @@ def mole_fraction(compound_amounts):
     # 打印结果
     print("\n#",20*"-","Calculating mole fraction",20*"-","#\n")
     for compound, molar_fraction in result.items():
-        print(compound, "摩尔分数:", round(molar_fraction,6))
+        print("Mole fraction of",compound, "=", round(molar_fraction,6))
 
     print("\n#",20*"-","Mole fraction end!!!!!!!!",20*"-","#\n")
     return None    
