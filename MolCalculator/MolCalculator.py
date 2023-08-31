@@ -29,7 +29,7 @@ class ChemicalCalculator(QMainWindow):
         self.label = QtWidgets.QLabel(self)
         self.label.setText("Formula:")
         self.label.move(20, 30+m)
-        self.label.setStyleSheet("font-size: 20px;")
+        self.label.setStyleSheet("font-size: 20px;font-family: Arial;")
 
         self.textbox = QtWidgets.QLineEdit(self)
         self.textbox.setText("NaCl")
@@ -134,7 +134,7 @@ class ChemicalCalculator(QMainWindow):
         label = QtWidgets.QLabel(self.massfrac)
         label.setText("Formula:")
         label.move(20, 25)
-        label.setStyleSheet("font-size: 18px;")   
+        label.setStyleSheet("font-size: 18px;font-family: Arial;")   
         self.mass_textbox = QtWidgets.QLineEdit(self.massfrac)
         self.mass_textbox.setText("H2O 360 NaCl 4")
         self.mass_textbox.setGeometry(120, 20, 200, 30)
