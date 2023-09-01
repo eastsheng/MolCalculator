@@ -82,8 +82,8 @@ def list_to_dict(lst):
     return dictionary
 
 
-def mole_fraction(compound_amounts):
-    compound_dict = list_to_dict(compound_amounts)
+def mole_fraction(molecules_list):
+    compound_dict = list_to_dict(molecules_list)
     # 传入化合物及其数量的字典作为参数
     # compound_dict = {"H2O": 368, "CH4": 64}
 
@@ -102,9 +102,8 @@ def mole_fraction(compound_amounts):
     return result_list    
 
 
-def mass_fraction(mol_list):
-    print("\n#",20*"-","Claculating mass fraction",20*"-","#\n")
-    mol_dict = list_to_dict(mol_list)
+def cal_total_mass(molecules_list):
+    mol_dict = list_to_dict(molecules_list)
     # print(mol_dict)
     m=MoleculeMass()
     mol_symbol = list(mol_dict.keys())
@@ -114,7 +113,12 @@ def mass_fraction(mol_list):
         molecular_mass = m.MolMass(mol_symbol[i]) 
         total_mass += molecular_mass*mol_number[i]
     total_mass_message = "Total mass of molecules ="+str(total_mass)    
-    # print(total_mass_message)
+    print(total_mass_message)
+    return total_mass 
+
+def mass_fraction(molecules_list):
+    print("\n#",20*"-","Claculating mass fraction",20*"-","#\n")
+    total_mass_message = cal_total_mass(molecules_list)
     molecular_mass_message_list = []
     molecular_mass_message_list.append(total_mass_message)
     for i in range(len(mol_dict)):
@@ -128,6 +132,22 @@ def mass_fraction(mol_list):
     print("\n#",20*"-","Mass fraction end!!!!!!!!",20*"-","#\n")
     # molecular_mass_message_list.append(mass_end_message)
     return molecular_mass_message_list
+
+
+amu2g = 6.02214076208112e23
+A2cm = 1e-8
+
+def mass_density(molecules_list,x=22,y=22,z=22):
+    '''给出总质量和三个方向尺寸(埃米)，返回密度（g/mL）'''
+    tot_mass = cal_total_mass(molecules_list)
+    unitconvert = amu2g*(A2cm)**3
+    vol = (x*y*z)*unitconvert
+    dens = tot_mass/vol
+    dens = round(dens,6)
+    dens_out = "Mass Density = "+str(dens)+" (g/mL))"
+    # print(dens_out)
+    return dens_out
+
 
 
 if __name__ == '__main__':
