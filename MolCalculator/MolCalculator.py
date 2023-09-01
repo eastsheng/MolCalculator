@@ -1,6 +1,6 @@
 """
 # 打包
-pyinstaller -F -w ./MolCalculator.py --clean -i ./imgs/icons-64.png --noconsole
+pyinstaller -D -w ./MolCalculator.py --clean -i ./imgs/icons-64.png
 # 一个分子计算器，可以实现：
 # 1. 输入化学式，输出摩尔质量
 # 2. 输入分子化学式和分子数目（至少两组），输出质量分数
