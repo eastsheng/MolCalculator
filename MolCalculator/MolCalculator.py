@@ -10,8 +10,8 @@ pyinstaller -D -w ./MolCalculator.py --clean -i ./imgs/icons-64.png
 import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QHBoxLayout ,QVBoxLayout,\
-QTextEdit, QMenuBar, QMenu, QAction, QMessageBox, QWidget, QVBoxLayout, QLabel
-from PyQt5.QtGui import QColor, QFont, QIcon
+QTextEdit, QMenuBar, QMenu, QAction, QMessageBox, QWidget, QVBoxLayout, QLabel, QDialog
+from PyQt5.QtGui import QColor, QFont, QIcon, QPixmap
 from PyQt5.QtCore import Qt
 import cal_fraction as cf
 
@@ -19,6 +19,41 @@ px, py = 100,100
 x, y = 600, 350
 mx, my = 1920, 1080
 m = 10
+
+class AboutDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("MolCalculator")
+        self.setWindowIcon(QIcon("./imgs/icons-64.png"))
+        self.setGeometry(px+100, py+100, int(x/2), int((y+m)/3))
+        self.setMinimumSize(int(x/2), int((y+m)/3))
+        layout = QVBoxLayout()
+
+        title = QLabel("MolCalculator")
+        title.setStyleSheet("font-size: 16px; color: #333333;font-family: Arial;")
+        title.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
+        layout.addWidget(title)
+
+        description = QLabel()
+        description.setOpenExternalLinks(True)
+        description.setText('A molecular calculator<br>Copyright @ 2023 MolCalculator<br>written by <a href="https://github.com/eastsheng/molecular_fractions/releases">eastsheng</a>')
+        description.setStyleSheet("font-size: 12px; color: #333333;font-family: Arial;")
+        description.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
+        layout.addWidget(description)
+
+        self.setLayout(layout)
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #f5f5f5;  /* 设置背景颜色 */
+                border: 1px solid #f2f2f2;  /* 设置边框 */
+            }
+            QLabel {
+                margin: 2px;
+            }
+        """)
+
+
 class ChemicalCalculator(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -100,6 +135,7 @@ class ChemicalCalculator(QMainWindow):
         self.menubar = QMenuBar(self)
 
         tools = self.menubar.addMenu(QIcon("./imgs/tools.png"),"Tools")
+        helps = self.menubar.addMenu("Help")
 
         self.setStyleSheet("""
             QMenuBar {
@@ -122,17 +158,30 @@ class ChemicalCalculator(QMainWindow):
         self.mass_title = "Mass fraction"
         self.mol_title = "Mol fraction"
         self.mdens_title = "Mass density"
+        self.about_title = "About"
         massf = QAction(QIcon("./imgs/mass_men.png"),self.mass_title, self)
         molf = QAction(QIcon("./imgs/mol_men.png"),self.mol_title, self)
         massd = QAction(QIcon("./imgs/dens_men.png"),self.mdens_title, self)
+        about = QAction(QIcon("./imgs/about.png"),self.about_title, self)
         tools.addAction(massf)
         tools.addAction(molf)
         tools.addAction(massd)
 
+        helps.addAction(about)
+
         massf.triggered.connect(self.open_massfrac)
         molf.triggered.connect(self.open_molfrac)
         massd.triggered.connect(self.open_massdens)
-        
+        about.triggered.connect(self.openAboutDialog)
+
+
+    # about
+    def openAboutDialog(self):
+        dialog = AboutDialog()
+        dialog.exec_()
+
+
+    # mass fractions
     def open_massfrac(self):
         self.massfrac = self.open_window("./imgs/mass_men.png",self.mass_title)
         label = QtWidgets.QLabel(self.massfrac)
