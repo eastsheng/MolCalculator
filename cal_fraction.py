@@ -144,7 +144,7 @@ def mass_density(molecules_list,x=22,y=22,z=22):
     vol = (x*y*z)*unitconvert
     dens = tot_mass/vol
     dens = round(dens,6)
-    dens_out = "Mass Density = "+str(dens)+" (g/mL))"
+    dens_out = "Mass Density = "+str(dens)+" (g/mL)"
     # print(dens_out)
     return dens_out
 

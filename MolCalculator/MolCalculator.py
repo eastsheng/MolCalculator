@@ -148,7 +148,7 @@ class ChemicalCalculator(QMainWindow):
         button.setText("Run")
         button.setGeometry(350, 20, 55, 30)
         button.setStyleSheet("font-family: Arial;background-color: #808080; color: white; font-size: 18px;")
-        button.clicked.connect(self.cal_massdens)
+        button.clicked.connect(self.cal_massfrac)
 
         self.mass_out_textbox = QTextEdit(self.massfrac)
         self.mass_out_textbox.setGeometry(20, 70, 385, 140)
@@ -201,7 +201,8 @@ class ChemicalCalculator(QMainWindow):
         fraction_list = list(mol_formula_num.strip().split())
         molecular_mass_message_list = cf.mass_fraction(fraction_list)
         for message in molecular_mass_message_list:
-            self.mass_out_textbox.append(message)
+            print(message)
+            self.mass_out_textbox.append(str(message))
         return
 
 
