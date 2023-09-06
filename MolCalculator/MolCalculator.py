@@ -12,7 +12,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QHBoxLayout ,QVBoxLayout,\
 QTextEdit, QMenuBar, QMenu, QAction, QMessageBox, QWidget, QVBoxLayout, QLabel, QDialog
 from PyQt5.QtGui import QColor, QFont, QIcon, QPixmap
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QCoreApplication, QSize
 import cal_fraction as cf
 
 px, py = 100,100
@@ -57,11 +57,14 @@ class AboutDialog(QDialog):
 class ChemicalCalculator(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.initUI()
+
+    def initUI(self):        
         self.setWindowTitle("MolCalculator")
         self.setWindowIcon(QIcon("./imgs/icons-64.png"))
         self.setGeometry(px, py, x, y+m)
-        self.setMinimumSize(x, y+m)
-        self.setMaximumSize(mx, my)
+        # self.setMinimumSize(x, y+m)
+        # self.setMaximumSize(mx, my)
         self.setStyleSheet("background-color: #f0f0f0;")
 
         self.label = QtWidgets.QLabel(self)
@@ -175,6 +178,9 @@ class ChemicalCalculator(QMainWindow):
         about.triggered.connect(self.openAboutDialog)
 
 
+
+
+
     # about
     def openAboutDialog(self):
         dialog = AboutDialog()
@@ -248,10 +254,14 @@ class ChemicalCalculator(QMainWindow):
         mol_formula_num = self.mass_textbox.text()
         self.mass_out_textbox.append(mol_formula_num)
         fraction_list = list(mol_formula_num.strip().split())
-        molecular_mass_message_list = cf.mass_fraction(fraction_list)
-        for message in molecular_mass_message_list:
-            print(message)
-            self.mass_out_textbox.append(str(message))
+        try:
+            molecular_mass_message_list = cf.mass_fraction(fraction_list)
+            for message in molecular_mass_message_list:
+                print(message)
+                self.mass_out_textbox.append(str(message))
+        except:
+            message = "Input format error !!!"
+            self.mass_out_textbox.append(message)
         return
 
 
@@ -324,9 +334,15 @@ class ChemicalCalculator(QMainWindow):
         mol_formula_num = self.mol_textbox.text()
         self.mol_out_textbox.append(mol_formula_num)
         fraction_list = list(mol_formula_num.strip().split())
-        molecular_mol_message_list = cf.mole_fraction(fraction_list)
-        for message in molecular_mol_message_list:
+        try:
+            molecular_mol_message_list = cf.mole_fraction(fraction_list)
+
+            for message in molecular_mol_message_list:
+                self.mol_out_textbox.append(message)
+        except:
+            message = "Input format error!!!!"
             self.mol_out_textbox.append(message)
+
         return
 
 
@@ -407,15 +423,17 @@ class ChemicalCalculator(QMainWindow):
     def cal_massdens(self):
         mol_formula_num = self.mass_dens_textbox.text()
         xyz = self.mass_dens_textbox_box.text()
+        self.mass_dens_out_textbox.append("Box Size = ("+xyz+") Å")
         self.mass_dens_out_textbox.append(mol_formula_num)
         fraction_list = list(mol_formula_num.strip().split())
-        x,y,z = map(float,list(xyz.strip().split()))
-        print(x,y,z)
-        molecular_mass_message_list = cf.mass_density(fraction_list,x,y,z)
-        print(molecular_mass_message_list)
-        # for message in molecular_mass_message_list:
-        self.mass_dens_out_textbox.append("Box Size = ("+xyz+") Å")
-        self.mass_dens_out_textbox.append(molecular_mass_message_list)
+        try:
+            x,y,z = map(float,list(xyz.strip().split()))
+            molecular_mass_message_list = cf.mass_density(fraction_list,x,y,z)
+            self.mass_dens_out_textbox.append(molecular_mass_message_list)
+            print(x,y,z)
+        except:
+            self.mass_dens_out_textbox.append("Input error!!!")
+
         return
 
 
@@ -442,6 +460,7 @@ class ChemicalCalculator(QMainWindow):
         m=cf.MoleculeMass()
         molmass = m.MolMass(formula)
         molmass = round(molmass,6)
+        self.out_textbox.append("Formula = " + formula)
         self.out_textbox.append("Molecular Mass = " + str(molmass)+ " (g/mol)")
 
     def open_window(self,icon,title):
@@ -449,11 +468,21 @@ class ChemicalCalculator(QMainWindow):
         window.setWindowTitle(title)
         window.setWindowIcon(QIcon(icon))
         window.setGeometry(200, 200, x, y-100)
-        window.setMinimumSize(x, y-100)
-        window.setMaximumSize(mx, my)
+        # window.setMinimumSize(x, y-100)
+        # window.setMaximumSize(mx, my)
         window.setAttribute(Qt.WA_DeleteOnClose, False)
 
         return window
+
+
+    def toggleFullscreen(self):
+        if self.isMaximized():
+            self.showNormal()
+            # self.btn_fullscreen.setText("Fullscreen")
+        else:
+            self.showMaximized()
+            # self.btn_fullscreen.setText("Restore")
+
 
 if __name__ == "__main__":
 
