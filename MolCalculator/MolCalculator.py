@@ -12,7 +12,8 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QHBoxLayout ,QVBoxLayout,\
 QTextEdit, QMenuBar, QMenu, QAction, QMessageBox, QWidget, QVBoxLayout, QLabel, QDialog
 from PyQt5.QtGui import QColor, QFont, QIcon, QPixmap
-from PyQt5.QtCore import Qt, QCoreApplication, QSize
+from PyQt5.QtCore import Qt, QCoreApplication, QSize, QUrl
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 import cal_fraction as cf
 
 px, py = 100,100
@@ -138,6 +139,7 @@ class ChemicalCalculator(QMainWindow):
         self.menubar = QMenuBar(self)
 
         tools = self.menubar.addMenu(QIcon("./imgs/tools.png"),"Tools")
+        Onlinetools = self.menubar.addMenu("WebTools")
         helps = self.menubar.addMenu("Help")
 
         self.setStyleSheet("""
@@ -162,30 +164,72 @@ class ChemicalCalculator(QMainWindow):
         self.mol_title = "Mol fraction"
         self.mdens_title = "Mass density"
         self.about_title = "About"
+        self.online_molcalc_title = "MolCalc"
         massf = QAction(QIcon("./imgs/mass_men.png"),self.mass_title, self)
-        molf = QAction(QIcon("./imgs/mol_men.png"),self.mol_title, self)
+        molf  = QAction(QIcon("./imgs/mol_men.png"),self.mol_title, self)
         massd = QAction(QIcon("./imgs/dens_men.png"),self.mdens_title, self)
         about = QAction(QIcon("./imgs/about.png"),self.about_title, self)
+        draw_mol = QAction(QIcon("./imgs/draw_mol.png"),self.online_molcalc_title, self)
+        online_molcalc = QAction(QIcon("./imgs/online_molcalc.png"),self.online_molcalc_title, self)
         tools.addAction(massf)
         tools.addAction(molf)
         tools.addAction(massd)
+        Onlinetools.addAction(draw_mol)
+        Onlinetools.addAction(online_molcalc)
 
         helps.addAction(about)
 
         massf.triggered.connect(self.open_massfrac)
         molf.triggered.connect(self.open_molfrac)
         massd.triggered.connect(self.open_massdens)
+        
+        draw_mol.triggered.connect(self.open_DrawMol)
+        online_molcalc.triggered.connect(self.open_MolCalc)
+
         about.triggered.connect(self.openAboutDialog)
-
-
-
-
 
     # about
     def openAboutDialog(self):
         dialog = AboutDialog()
         dialog.exec_()
 
+    # draw molecules online
+    def open_DrawMol(self):
+        self.DrawMol = QWidget()
+        self.DrawMol.setWindowTitle(self.online_molcalc_title)
+        self.DrawMol.setWindowIcon(QIcon("./imgs/draw_mol.png"))
+        self.DrawMol.setGeometry(200, 50, 1200, 900)
+        self.DrawMol.setAttribute(Qt.WA_DeleteOnClose, False)
+
+        layout = QVBoxLayout()
+        widget = QWidget(self.DrawMol)
+        widget.setLayout(layout)
+        webview = QWebEngineView()
+        layout.addWidget(webview)
+        self.DrawMol.setLayout(layout)
+        self.DrawMol.show()
+        url = QUrl.fromUserInput("https://chemoinfo.ipmc.cnrs.fr/LEA3D/drawonline.html")  # 替换为你想要嵌入的网页的URL
+        webview.load(url)
+        webview.setZoomFactor(1.8)
+
+    # online_molcalc
+    def open_MolCalc(self):
+        # self.molcalc = self.open_window("./imgs/online_molcalc.png",self.online_molcalc_title)
+        self.molcalc = QWidget()
+        self.molcalc.setWindowTitle(self.online_molcalc_title)
+        self.molcalc.setWindowIcon(QIcon("./imgs/online_molcalc.png"))
+        self.molcalc.setGeometry(200, 50, 1200, 900)
+        self.molcalc.setAttribute(Qt.WA_DeleteOnClose, False)
+
+        layout = QVBoxLayout()
+        widget = QWidget(self.molcalc)
+        widget.setLayout(layout)
+        webview = QWebEngineView()
+        layout.addWidget(webview)
+        self.molcalc.setLayout(layout)
+        self.molcalc.show()
+        url = QUrl.fromUserInput("https://molcalc.org")  # 替换为你想要嵌入的网页的URL
+        webview.load(url)
 
     # mass fractions
     def open_massfrac(self):
