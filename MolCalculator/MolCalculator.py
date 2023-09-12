@@ -6,6 +6,8 @@ pyinstaller -D -w ./MolCalculator.py --clean -i ./imgs/icons-64.png
 # 2. 输入分子化学式和分子数目（至少两组），输出质量分数
 # 3. 输入分子化学式和分子数目（至少两组），输出摩尔分数
 # 4. 输入分子化学式和分子数目，与体系大小(Å)，输出质量密度g/mL
+# 5. 添加Draw molecules和MolCalc两个WEB工具
+
 """
 import sys
 from PyQt5 import QtWidgets
