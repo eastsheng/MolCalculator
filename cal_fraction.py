@@ -118,10 +118,16 @@ def cal_total_mass(molecules_list):
 
 def mass_fraction(molecules_list):
     print("\n#",20*"-","Claculating mass fraction",20*"-","#\n")
-    total_mass_message = cal_total_mass(molecules_list)
+    total_mass = cal_total_mass(molecules_list)
     molecular_mass_message_list = []
-    molecular_mass_message_list.append(total_mass_message)
-    for i in range(len(mol_dict)):
+    # molecular_mass_message_list.append(total_mass)
+    mol_dict = list_to_dict(molecules_list)
+    # print(mol_dict)
+    m=MoleculeMass()
+    mol_symbol = list(mol_dict.keys())
+    mol_number = list(mol_dict.values())
+    m=MoleculeMass()
+    for i in range(len(mol_symbol)):
         molecular_mass = m.MolMass(mol_symbol[i]) 
         mf = molecular_mass*mol_number[i]/total_mass
         molecular_mass_message = "Mass fraction of "+str(mol_symbol[i])+" = "+str(round(mf,6))
@@ -130,7 +136,7 @@ def mass_fraction(molecules_list):
         molecular_mass_message_list.append(molecular_mass_message)
     # print(molecular_mass_message_list)
     print("\n#",20*"-","Mass fraction end!!!!!!!!",20*"-","#\n")
-    # molecular_mass_message_list.append(mass_end_message)
+
     return molecular_mass_message_list
 
 

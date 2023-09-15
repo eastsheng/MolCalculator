@@ -167,11 +167,12 @@ class ChemicalCalculator(QMainWindow):
         self.mdens_title = "Mass density"
         self.about_title = "About"
         self.online_molcalc_title = "MolCalc"
+        self.online_moldraw_title = "MolDraw"
         massf = QAction(QIcon("./imgs/mass_men.png"),self.mass_title, self)
         molf  = QAction(QIcon("./imgs/mol_men.png"),self.mol_title, self)
         massd = QAction(QIcon("./imgs/dens_men.png"),self.mdens_title, self)
         about = QAction(QIcon("./imgs/about.png"),self.about_title, self)
-        draw_mol = QAction(QIcon("./imgs/draw_mol.png"),self.online_molcalc_title, self)
+        draw_mol = QAction(QIcon("./imgs/draw_mol.png"),self.online_moldraw_title, self)
         online_molcalc = QAction(QIcon("./imgs/online_molcalc.png"),self.online_molcalc_title, self)
         tools.addAction(massf)
         tools.addAction(molf)
