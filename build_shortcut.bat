@@ -19,7 +19,7 @@ echo oShellLink.WindowStyle=1
 echo oShellLink.Description="%Desc%"
 echo oShellLink.IconLocation="%icon%"
 echo oShellLink.Save)>makelnk.vbs
-echo Successfully！ 
+echo Successfully! 
 makelnk.vbs
 del /f /q makelnk.vbs
 exit
