@@ -6,7 +6,7 @@ pyinstaller -D -w ./MolCalculator.py --clean -i ./imgs/icons-64.png
 # 2. 输入分子化学式和分子数目（至少两组），输出质量分数
 # 3. 输入分子化学式和分子数目（至少两组），输出摩尔分数
 # 4. 输入分子化学式和分子数目，与体系大小(Å)，输出质量密度g/mL
-# 5. 添加Draw molecules和MolCalc两个WEB工具
+# 5. 添加Draw molecules, MolCalc和Molview三个WEB工具
 
 """
 import sys
@@ -16,7 +16,8 @@ QTextEdit, QMenuBar, QMenu, QAction, QMessageBox, QWidget, QVBoxLayout, QLabel, 
 from PyQt5.QtGui import QColor, QFont, QIcon, QPixmap
 from PyQt5.QtCore import Qt, QCoreApplication, QSize, QUrl
 from PyQt5.QtWebEngineWidgets import QWebEngineView
-import cal_fraction as cf
+import scripts.cal_fraction as cf
+
 
 px, py = 100,100
 x, y = 600, 350
@@ -40,7 +41,7 @@ class AboutDialog(QDialog):
 
         description = QLabel()
         description.setOpenExternalLinks(True)
-        description.setText('A molecular calculator<br>Copyright @ 2023 MolCalculator<br>written by <a href="https://github.com/eastsheng/molecular_fractions/releases">eastsheng</a>')
+        description.setText('A molecular calculator<br>Copyright @ 2023 MolCalculator<br>written by <a href="https://github.com/eastsheng/MolCalculator">eastsheng</a>')
         description.setStyleSheet("font-size: 12px; color: #333333;font-family: Arial;")
         description.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
         layout.addWidget(description)
@@ -168,16 +169,19 @@ class ChemicalCalculator(QMainWindow):
         self.about_title = "About"
         self.online_molcalc_title = "MolCalc"
         self.online_moldraw_title = "MolDraw"
+        self.online_molview_title = "MolView"
         massf = QAction(QIcon("./imgs/mass_men.png"),self.mass_title, self)
         molf  = QAction(QIcon("./imgs/mol_men.png"),self.mol_title, self)
         massd = QAction(QIcon("./imgs/dens_men.png"),self.mdens_title, self)
         about = QAction(QIcon("./imgs/about.png"),self.about_title, self)
         draw_mol = QAction(QIcon("./imgs/draw_mol.png"),self.online_moldraw_title, self)
         online_molcalc = QAction(QIcon("./imgs/online_molcalc.png"),self.online_molcalc_title, self)
+        online_molview = QAction(QIcon("./imgs/online_molview.png"),self.online_molview_title, self)
         tools.addAction(massf)
         tools.addAction(molf)
         tools.addAction(massd)
         Onlinetools.addAction(draw_mol)
+        Onlinetools.addAction(online_molview)
         Onlinetools.addAction(online_molcalc)
 
         helps.addAction(about)
@@ -188,6 +192,7 @@ class ChemicalCalculator(QMainWindow):
         
         draw_mol.triggered.connect(self.open_DrawMol)
         online_molcalc.triggered.connect(self.open_MolCalc)
+        online_molview.triggered.connect(self.open_MolView)
 
         about.triggered.connect(self.openAboutDialog)
 
@@ -232,6 +237,24 @@ class ChemicalCalculator(QMainWindow):
         self.molcalc.setLayout(layout)
         self.molcalc.show()
         url = QUrl.fromUserInput("https://molcalc.org")  # 替换为你想要嵌入的网页的URL
+        webview.load(url)
+
+    # online_molview
+    def open_MolView(self):
+        self.molview = QWidget()
+        self.molview.setWindowTitle(self.online_molview_title)
+        self.molview.setWindowIcon(QIcon("./imgs/online_molview.png"))
+        self.molview.setGeometry(200, 50, 1300, 900)
+        self.molview.setAttribute(Qt.WA_DeleteOnClose, False)
+
+        layout = QVBoxLayout()
+        widget = QWidget(self.molview)
+        widget.setLayout(layout)
+        webview = QWebEngineView()
+        layout.addWidget(webview)
+        self.molview.setLayout(layout)
+        self.molview.show()
+        url = QUrl.fromUserInput("https://molview.org/")  # 替换为你想要嵌入的网页的URL
         webview.load(url)
 
     # mass fractions
@@ -521,14 +544,6 @@ class ChemicalCalculator(QMainWindow):
 
         return window
 
-
-    def toggleFullscreen(self):
-        if self.isMaximized():
-            self.showNormal()
-            # self.btn_fullscreen.setText("Fullscreen")
-        else:
-            self.showMaximized()
-            # self.btn_fullscreen.setText("Restore")
 
 
 if __name__ == "__main__":
