@@ -7,6 +7,7 @@ pyinstaller -D -w ./MolCalculator.py --clean -i ./imgs/icons-64.png
 # 3. 输入分子化学式和分子数目（至少两组），输出摩尔分数
 # 4. 输入分子化学式和分子数目，与体系大小(Å)，输出质量密度g/mL
 # 5. 添加Draw molecules, MolCalc和Molview三个WEB工具
+# 6. 添加元素周期表WEB网页
 
 """
 import sys
@@ -167,6 +168,7 @@ class ChemicalCalculator(QMainWindow):
         self.mol_title = "Mol fraction"
         self.mdens_title = "Mass density"
         self.about_title = "About"
+        self.PeriodicTable_title = "PeriodicTable"
         self.online_molcalc_title = "MolCalc"
         self.online_moldraw_title = "MolDraw"
         self.online_molview_title = "MolView"
@@ -174,12 +176,14 @@ class ChemicalCalculator(QMainWindow):
         molf  = QAction(QIcon("./imgs/mol_men.png"),self.mol_title, self)
         massd = QAction(QIcon("./imgs/dens_men.png"),self.mdens_title, self)
         about = QAction(QIcon("./imgs/about.png"),self.about_title, self)
+        periodictable = QAction(QIcon("./imgs/periodictable.png"),self.PeriodicTable_title, self)
         draw_mol = QAction(QIcon("./imgs/draw_mol.png"),self.online_moldraw_title, self)
         online_molcalc = QAction(QIcon("./imgs/online_molcalc.png"),self.online_molcalc_title, self)
         online_molview = QAction(QIcon("./imgs/online_molview.png"),self.online_molview_title, self)
         tools.addAction(massf)
         tools.addAction(molf)
         tools.addAction(massd)
+        Onlinetools.addAction(periodictable)
         Onlinetools.addAction(draw_mol)
         Onlinetools.addAction(online_molview)
         Onlinetools.addAction(online_molcalc)
@@ -190,6 +194,7 @@ class ChemicalCalculator(QMainWindow):
         molf.triggered.connect(self.open_molfrac)
         massd.triggered.connect(self.open_massdens)
         
+        periodictable.triggered.connect(self.open_periodictable)
         draw_mol.triggered.connect(self.open_DrawMol)
         online_molcalc.triggered.connect(self.open_MolCalc)
         online_molview.triggered.connect(self.open_MolView)
@@ -200,6 +205,26 @@ class ChemicalCalculator(QMainWindow):
     def openAboutDialog(self):
         dialog = AboutDialog()
         dialog.exec_()
+
+
+    # online Periodic Table
+    def open_periodictable(self):
+        self.periodictable = QWidget()
+        self.periodictable.setWindowTitle(self.PeriodicTable_title)
+        self.periodictable.setWindowIcon(QIcon("./imgs/periodictable.png"))
+        self.periodictable.setGeometry(200, 50, 1200, 900)
+        self.periodictable.setAttribute(Qt.WA_DeleteOnClose, False)
+
+        layout = QVBoxLayout()
+        widget = QWidget(self.periodictable)
+        widget.setLayout(layout)
+        webview = QWebEngineView()
+        layout.addWidget(webview)
+        self.periodictable.setLayout(layout)
+        self.periodictable.show()
+        url = QUrl.fromUserInput("https://www.rsc.org/periodic-table")  # 替换为你想要嵌入的网页的URL
+        webview.load(url)
+
 
     # draw molecules online
     def open_DrawMol(self):
