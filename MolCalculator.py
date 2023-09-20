@@ -231,7 +231,7 @@ class ChemicalCalculator(QMainWindow):
         # self.display_label.setText("Molecular Picture:")
         self.display_label.setFixedSize(x,200)
         self.display_label.setStyleSheet("font-size: 18px;font-family: Arial;background-color: white;")  
-        
+        self.display_label.setAlignment(Qt.AlignCenter)
         self.findmols_textbox = QtWidgets.QLineEdit(self.FindMols)
         self.findmols_textbox.setText("PVP")
         self.findmols_textbox.setGeometry(120, 20, 200, 30)
@@ -249,10 +249,10 @@ class ChemicalCalculator(QMainWindow):
         self.findmols_out_textbox.setReadOnly(True)
         self.findmols_out_textbox.setStyleSheet("""
             QTextEdit {
-                background-color: #f5f5f5;  /* 设置背景颜色 */
+                background-color: white;  /* 设置背景颜色 */
                 font-family: Arial;  /* 设置字体样式 */
                 font-size: 18px;
-                border: 1px solid #ccc;  /* 设置边框 */
+                border: 0.1px solid #ccc;  /* 设置边框 */
             }
         """)
         button_clean = QtWidgets.QPushButton(self.FindMols)
@@ -292,17 +292,23 @@ class ChemicalCalculator(QMainWindow):
         # ----------------------------------------------
 
     def getMols(self):
-        compounds = fc.get_type_compounds(name=self.findmols_textbox.text())
+        name = self.findmols_textbox.text()
+        compounds = fc.get_type_compounds(name=name)
         mols_list,imgs_list,infos_list = fc.mol_infos(compounds)
-        for i in range(len(mols_list)):
-            imgs_list[i].save('./temp/temp.png')
-            image = QPixmap('./temp/temp.png').scaled(200, 200)
-            self.display_label.setPixmap(image)
-            self.findmols_out_textbox.append("SMILES: "+str(infos_list[i]["smiles"]))
-            self.findmols_out_textbox.append("Formula: "+str(infos_list[i]["formula"]))
-            self.findmols_out_textbox.append("Weight: "+str(infos_list[i]["weight"]))
-            self.findmols_out_textbox.append("NAME: "+str(infos_list[i]["name"]))
-            self.findmols_out_textbox.append("\n")
+        n = len(mols_list)
+        if n == 0:
+            self.findmols_out_textbox.append("Warning: Not found '"
+                +name+"',there is no 'Name' or 'SMILES' in 'Pubchem' database")
+        else:       
+            for i in range(n):
+                imgs_list[i].save('./temp/temp.png')
+                image = QPixmap('./temp/temp.png').scaled(200, 200)
+                self.display_label.setPixmap(image)
+                self.findmols_out_textbox.append("SMILES: "+str(infos_list[i]["smiles"]))
+                self.findmols_out_textbox.append("Formula: "+str(infos_list[i]["formula"]))
+                self.findmols_out_textbox.append("Weight: "+str(infos_list[i]["weight"]))
+                self.findmols_out_textbox.append("NAME: "+str(infos_list[i]["name"]))
+                self.findmols_out_textbox.append("\n")
 
 
     # online Periodic Table
