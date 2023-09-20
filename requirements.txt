@@ -1,4 +1,5 @@
 periodictable==1.6.1
 PyQt5==5.15.9
+qt-material==2.14
 pubchempy==1.0.4
 rdkit==2023.3.1

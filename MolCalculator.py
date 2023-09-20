@@ -12,11 +12,13 @@ pyinstaller -D -w ./MolCalculator.py --clean -i ./imgs/icons-64.png
 """
 import sys
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QApplication, QMainWindow, QHBoxLayout ,QVBoxLayout,\
-QTextEdit, QMenuBar, QMenu, QAction, QMessageBox, QWidget, QVBoxLayout, QLabel, QDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QHBoxLayout ,QVBoxLayout,QTabWidget,\
+QTextEdit, QMenuBar, QMenu, QAction, QMessageBox, QWidget, QVBoxLayout, QLabel, QDialog, QComboBox
 from PyQt5.QtGui import QColor, QFont, QIcon, QPixmap
 from PyQt5.QtCore import Qt, QCoreApplication, QSize, QUrl
 from PyQt5.QtWebEngineWidgets import QWebEngineView
+from qt_material import apply_stylesheet
+
 import scripts.cal_fraction as cf
 import scripts.FindCompounds as fc
 
@@ -173,6 +175,7 @@ class ChemicalCalculator(QMainWindow):
         self.mass_title = "Mass fraction"
         self.mol_title = "Mol fraction"
         self.mdens_title = "Mass density"
+        self.setting_title = "Setting"
         self.about_title = "About"
         self.PeriodicTable_title = "PeriodicTable"
         self.online_molcalc_title = "MolCalc"
@@ -182,6 +185,7 @@ class ChemicalCalculator(QMainWindow):
         massf = QAction(QIcon("./imgs/mass_men.png"),self.mass_title, self)
         molf  = QAction(QIcon("./imgs/mol_men.png"),self.mol_title, self)
         massd = QAction(QIcon("./imgs/dens_men.png"),self.mdens_title, self)
+        setting = QAction(QIcon("./imgs/setting.png"),self.setting_title, self)
         about = QAction(QIcon("./imgs/about.png"),self.about_title, self)
         periodictable = QAction(QIcon("./imgs/periodictable.png"),self.PeriodicTable_title, self)
         draw_mol = QAction(QIcon("./imgs/draw_mol.png"),self.online_moldraw_title, self)
@@ -199,6 +203,7 @@ class ChemicalCalculator(QMainWindow):
         Onlinetools.addAction(online_molcalc)
         SearchMols.addAction(findmols)
 
+        helps.addAction(setting)
         helps.addAction(about)
 
         massf.triggered.connect(self.open_massfrac)
@@ -212,12 +217,33 @@ class ChemicalCalculator(QMainWindow):
 
         findmols.triggered.connect(self.open_FindMols)
 
+        setting.triggered.connect(self.openSetting)
         about.triggered.connect(self.openAboutDialog)
 
     # about
     def openAboutDialog(self):
         dialog = AboutDialog()
         dialog.exec_()
+
+    # setting
+    def openSetting(self):
+        self.Setting = self.open_window("./imgs/setting.png",self.setting_title,y=30)
+        self.Setting.setMaximumSize(mx, 30)
+
+        layout = QVBoxLayout(self.Setting)
+        tab_widget = QTabWidget()
+        layout.addWidget(tab_widget)
+        themes = QWidget()
+        tab_widget.addTab(themes, "主题设置")
+        themes_layout = QVBoxLayout(themes)
+        themes_layout.addWidget(QLabel("主题选择："))
+        theme_combo = QComboBox()
+        themes_names_dict = read_themes()
+        themes_names = list(themes_names_dict.keys())
+        theme_combo.addItems(themes_names)
+        themes_layout.addWidget(theme_combo)
+
+        self.Setting.show()
 
 
     # open_FindMols
@@ -680,11 +706,29 @@ class ChemicalCalculator(QMainWindow):
 
         return window
 
+def read_themes():
+    with open("./scripts/themes","r") as t:
+        themes = t.readlines()
+    # print(themes)
+    themes_names = {}
+    names,files = [],[]
+    for theme in themes:
+        name = theme.split(".")[0]
+        names.append(name) 
+        files.append(theme.split("\n")[0]) 
+    pairs = list(zip(names, files))
+    themes_names = dict(pairs)
+    return themes_names
 
 
 if __name__ == "__main__":
 
     app = QApplication(sys.argv)
+    # setup stylesheet
+    themes_names = read_themes()
+    theme = themes_names["dark_blue"]
+    print(themes_names)
+    apply_stylesheet(app, theme)
     window = ChemicalCalculator()
     window.show()
     sys.exit(app.exec_())                      
