@@ -18,6 +18,11 @@ from PyQt5.QtGui import QColor, QFont, QIcon, QPixmap
 from PyQt5.QtCore import Qt, QCoreApplication, QSize, QUrl
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 import scripts.cal_fraction as cf
+import scripts.FindCompounds as fc
+
+import pubchempy as pcp
+from rdkit import Chem
+from rdkit.Chem import Draw
 
 
 px, py = 100,100
@@ -144,6 +149,7 @@ class ChemicalCalculator(QMainWindow):
 
         tools = self.menubar.addMenu(QIcon("./imgs/tools.png"),"Tools")
         Onlinetools = self.menubar.addMenu("WebTools")
+        SearchMols = self.menubar.addMenu("SearchMols")
         helps = self.menubar.addMenu("Help")
 
         self.setStyleSheet("""
@@ -172,6 +178,7 @@ class ChemicalCalculator(QMainWindow):
         self.online_molcalc_title = "MolCalc"
         self.online_moldraw_title = "MolDraw"
         self.online_molview_title = "MolView"
+        self.findmols_title = "FindMols"
         massf = QAction(QIcon("./imgs/mass_men.png"),self.mass_title, self)
         molf  = QAction(QIcon("./imgs/mol_men.png"),self.mol_title, self)
         massd = QAction(QIcon("./imgs/dens_men.png"),self.mdens_title, self)
@@ -180,6 +187,9 @@ class ChemicalCalculator(QMainWindow):
         draw_mol = QAction(QIcon("./imgs/draw_mol.png"),self.online_moldraw_title, self)
         online_molcalc = QAction(QIcon("./imgs/online_molcalc.png"),self.online_molcalc_title, self)
         online_molview = QAction(QIcon("./imgs/online_molview.png"),self.online_molview_title, self)
+        
+        findmols = QAction(QIcon("./imgs/find_mols.png"),self.findmols_title, self)
+
         tools.addAction(massf)
         tools.addAction(molf)
         tools.addAction(massd)
@@ -187,6 +197,7 @@ class ChemicalCalculator(QMainWindow):
         Onlinetools.addAction(draw_mol)
         Onlinetools.addAction(online_molview)
         Onlinetools.addAction(online_molcalc)
+        SearchMols.addAction(findmols)
 
         helps.addAction(about)
 
@@ -199,12 +210,99 @@ class ChemicalCalculator(QMainWindow):
         online_molcalc.triggered.connect(self.open_MolCalc)
         online_molview.triggered.connect(self.open_MolView)
 
+        findmols.triggered.connect(self.open_FindMols)
+
         about.triggered.connect(self.openAboutDialog)
 
     # about
     def openAboutDialog(self):
         dialog = AboutDialog()
         dialog.exec_()
+
+
+    # open_FindMols
+    def open_FindMols(self):
+        self.FindMols = self.open_window("./imgs/find_mols.png",self.findmols_title,y=600)
+        label = QtWidgets.QLabel(self.FindMols)
+        label.setText("Name or SMILES:")
+        label.move(20, 25)
+        label.setStyleSheet("font-size: 18px;font-family: Arial;")  
+        self.display_label = QtWidgets.QLabel(self.FindMols) 
+        # self.display_label.setText("Molecular Picture:")
+        self.display_label.setFixedSize(x,200)
+        self.display_label.setStyleSheet("font-size: 18px;font-family: Arial;background-color: white;")  
+        
+        self.findmols_textbox = QtWidgets.QLineEdit(self.FindMols)
+        self.findmols_textbox.setText("PVP")
+        self.findmols_textbox.setGeometry(120, 20, 200, 30)
+        self.findmols_textbox.setStyleSheet("font-family: Arial;background-color: white; font-size: 18px;border: 1px solid #ccc;")
+
+        button = QtWidgets.QPushButton(self.FindMols)
+        button.setText("Run")
+        button.setGeometry(350, 20, 55, 30)
+        button.setStyleSheet("font-family: Arial;background-color: #808080; color: white; font-size: 18px;")
+        
+        button.clicked.connect(self.getMols)
+
+        self.findmols_out_textbox = QTextEdit(self.FindMols)
+        self.findmols_out_textbox.setGeometry(20, 70, 385, 140)
+        self.findmols_out_textbox.setReadOnly(True)
+        self.findmols_out_textbox.setStyleSheet("""
+            QTextEdit {
+                background-color: #f5f5f5;  /* 设置背景颜色 */
+                font-family: Arial;  /* 设置字体样式 */
+                font-size: 18px;
+                border: 1px solid #ccc;  /* 设置边框 */
+            }
+        """)
+        button_clean = QtWidgets.QPushButton(self.FindMols)
+        button_clean.setText("Clean")
+        button_clean.setGeometry(60, y-135, 60, 30)
+        button_clean.setStyleSheet("font-family: Arial;background-color: #495c69; color: white; font-size: 18px;")
+        button_clean.clicked.connect(self.clear_output_findmols)
+
+        button_exit = QtWidgets.QPushButton(self.FindMols)
+        button_exit.setText("Exit")
+        button_exit.setGeometry(x-60-60, y-135, 60, 30)
+        button_exit.setStyleSheet("font-family: Arial;background-color: #e02424; color: white; font-size: 18px;")
+        button_exit.clicked.connect(self.exit_findmols)
+
+        # ----------------------------------------------
+        main_layout = QVBoxLayout()
+        layout1 = QHBoxLayout()
+        layout12 = QHBoxLayout()
+        layout2 = QHBoxLayout()
+        layout3 = QHBoxLayout()
+
+        layout1.addWidget(label)
+        layout1.addWidget(self.findmols_textbox)
+        layout1.addWidget(button)
+        layout12.addWidget(self.display_label)
+        layout2.addWidget(self.findmols_out_textbox)
+
+        layout3.addWidget(button_clean)
+        layout3.addWidget(button_exit)
+
+        main_layout.addLayout(layout1)
+        main_layout.addLayout(layout2)
+        main_layout.addLayout(layout12)
+        main_layout.addLayout(layout3)
+        self.FindMols.setLayout(main_layout)
+        self.FindMols.show()
+        # ----------------------------------------------
+
+    def getMols(self):
+        compounds = fc.get_type_compounds(name=self.findmols_textbox.text())
+        mols_list,imgs_list,infos_list = fc.mol_infos(compounds)
+        for i in range(len(mols_list)):
+            imgs_list[i].save('./temp/temp.png')
+            image = QPixmap('./temp/temp.png').scaled(200, 200)
+            self.display_label.setPixmap(image)
+            self.findmols_out_textbox.append("SMILES: "+str(infos_list[i]["smiles"]))
+            self.findmols_out_textbox.append("Formula: "+str(infos_list[i]["formula"]))
+            self.findmols_out_textbox.append("Weight: "+str(infos_list[i]["weight"]))
+            self.findmols_out_textbox.append("NAME: "+str(infos_list[i]["name"]))
+            self.findmols_out_textbox.append("\n")
 
 
     # online Periodic Table
@@ -534,6 +632,10 @@ class ChemicalCalculator(QMainWindow):
 
     def clear_output_textbox(self):
     	self.out_textbox.clear()
+
+    def clear_output_findmols(self):
+        self.findmols_out_textbox.clear()
+
     def clear_output_molfrac(self):
         self.mol_out_textbox.clear()
     def clear_output_massfrac(self):
@@ -543,6 +645,9 @@ class ChemicalCalculator(QMainWindow):
 
     def exit_program(self):
     	self.close()
+    def exit_findmols(self):
+        self.FindMols.close()
+    
     def exit_molfrac(self):
         self.molfrac.close()
     def exit_massfrac(self):
@@ -558,7 +663,7 @@ class ChemicalCalculator(QMainWindow):
         self.out_textbox.append("Formula = " + formula)
         self.out_textbox.append("Molecular Mass = " + str(molmass)+ " (g/mol)")
 
-    def open_window(self,icon,title):
+    def open_window(self,icon,title,y=y):
         window = QWidget()
         window.setWindowTitle(title)
         window.setWindowIcon(QIcon(icon))
