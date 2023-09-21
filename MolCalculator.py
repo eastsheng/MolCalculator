@@ -364,7 +364,7 @@ class ChemicalCalculator(QMainWindow):
                 self.findmols_out_textbox.append("SMILES: "+str(infos_list[i]["smiles"]))
                 self.findmols_out_textbox.append("Formula: "+str(infos_list[i]["formula"]))
                 self.findmols_out_textbox.append("Weight: "+str(infos_list[i]["weight"]))
-                self.findmols_out_textbox.append("NAME: "+str(infos_list[i]["name"]))
+                self.findmols_out_textbox.append("IUPAC NAME: "+str(infos_list[i]["name"]))
                 self.findmols_out_textbox.append("\n")
 
 
