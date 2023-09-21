@@ -149,27 +149,12 @@ class ChemicalCalculator(QMainWindow):
         # 下拉菜单栏目
         self.menubar = QMenuBar(self)
 
-        tools = self.menubar.addMenu(QIcon("./imgs/tools.png"),"Tools")
-        Onlinetools = self.menubar.addMenu("WebTools")
-        SearchMols = self.menubar.addMenu("SearchMols")
-        helps = self.menubar.addMenu("Help")
+        # tools = self.menubar.addMenu(QIcon("./imgs/tools.png"),"Tools")
+        tools = self.menubar.addMenu("🛠Tools")
+        Onlinetools = self.menubar.addMenu("🌍WebTools")
+        SearchMols = self.menubar.addMenu("🔍SearchMols")
+        helps = self.menubar.addMenu("💡Help")
 
-        self.setStyleSheet("""
-            QMenuBar {
-                background-color: #666666;
-                color: white;
-            }
-            QMenuBar::item {
-                background-color: #666666;
-                color: white;
-                padding: 5px 10px;
-                border: none;
-            }
-            QMenuBar::item:selected {
-                background-color: #333;
-            }
-
-        """)
         self.setMenuBar(self.menubar)
         self.menubar.setFixedHeight(30)
         self.mass_title = "Mass fraction"
@@ -193,6 +178,24 @@ class ChemicalCalculator(QMainWindow):
         online_molview = QAction(QIcon("./imgs/online_molview.png"),self.online_molview_title, self)
         
         findmols = QAction(QIcon("./imgs/find_mols.png"),self.findmols_title, self)
+        self.setStyleSheet("""
+            QMenuBar {
+                background-color: #666666;
+                color: white;
+                font-family: Arial;
+                font: bold;
+            }
+            QMenuBar::item {
+                background-color: #666666;
+                color: white;
+                font-size: 14px;
+                padding: 5.5px 10px;
+
+            }
+            QMenuBar::item:selected {
+                background-color: #333;
+            }
+        """)        
 
         tools.addAction(massf)
         tools.addAction(molf)
@@ -227,23 +230,51 @@ class ChemicalCalculator(QMainWindow):
 
     # setting
     def openSetting(self):
-        self.Setting = self.open_window("./imgs/setting.png",self.setting_title,y=30)
-        self.Setting.setMaximumSize(mx, 30)
+        self.Setting = self.open_window("./imgs/setting.png",self.setting_title,y=100)
+        # self.Setting.setMaximumSize(mx, 30)
 
         layout = QVBoxLayout(self.Setting)
         tab_widget = QTabWidget()
         layout.addWidget(tab_widget)
-        themes = QWidget()
-        tab_widget.addTab(themes, "主题设置")
-        themes_layout = QVBoxLayout(themes)
-        themes_layout.addWidget(QLabel("主题选择："))
-        theme_combo = QComboBox()
-        themes_names_dict = read_themes()
-        themes_names = list(themes_names_dict.keys())
-        theme_combo.addItems(themes_names)
-        themes_layout.addWidget(theme_combo)
 
+        themes = QWidget()
+        tab_widget.addTab(themes, "🎨 Themes")
+        themes_layout = QHBoxLayout(themes)
+        themes_layout.addWidget(QLabel("Select theme (Restart)："))
+        tab_widget.setStyleSheet("font-family: Arial; font-size: 15px; font: bold;")
+
+        themes = QWidget()
+        tab_widget.addTab(themes, "💤 Others")
+
+        
+        self.theme_combo = QComboBox()
+        self.themes_names_dict = read_themes()
+        self.themes_names = list(self.themes_names_dict.keys())
+        self.theme_combo.addItems(self.themes_names)
+        self.theme_combo.setCurrentText(default_theme)
+        themes_layout.addWidget(self.theme_combo)
+
+        self.theme_combo.currentIndexChanged[str].connect(self.write_chosen_theme)
+        
+        self.theme_combo.setStyleSheet(
+            "font-family: Arial; font-size: 15px; font: bold; background-color: #f5f5f5;")
+        self.Setting.setLayout(layout)
         self.Setting.show()
+
+    def write_chosen_theme(self):
+        try:
+            # if self.theme_combo.currentText() in self.themes_names:
+            choose_theme_name = self.theme_combo.currentText()
+            choose_theme=self.themes_names_dict[choose_theme_name]
+            with open(chosen_theme_file,"w") as t:
+                t.write(choose_theme)
+                print(choose_theme,"theme was selected......")
+        except:
+            with open(chosen_theme_file,"w") as t:
+                t.write(default_theme) 
+                print("default "+default_theme+" theme was selected......")
+
+        return
 
 
     # open_FindMols
@@ -707,7 +738,7 @@ class ChemicalCalculator(QMainWindow):
         return window
 
 def read_themes():
-    with open("./scripts/themes","r") as t:
+    with open(all_themes_file,"r") as t:
         themes = t.readlines()
     # print(themes)
     themes_names = {}
@@ -720,15 +751,29 @@ def read_themes():
     themes_names = dict(pairs)
     return themes_names
 
+def read_choose_theme():
+    try:
+        with open(chosen_theme_file,"r") as t:
+            chosen_theme = t.readlines()[0].split("\n")[0]
+            print(chosen_theme,"theme was selected......")
+    except:
+        print("Warning: Not found chosen theme......")
+        print("Warning: default "+default_theme+" theme was selected......")
+        chosen_theme = default_theme
+    
+    return chosen_theme
 
 if __name__ == "__main__":
+    all_themes_file = "./scripts/themes"
+    chosen_theme_file = "./scripts/.theme"
 
+    default_theme = "light_blue.xml"
+    default_theme = default_theme.split(".")[0]
     app = QApplication(sys.argv)
     # setup stylesheet
-    themes_names = read_themes()
-    theme = themes_names["dark_blue"]
-    print(themes_names)
-    apply_stylesheet(app, theme)
+    chosen_theme = read_choose_theme()
+    # theme = themes_names["dark_blue"]
+    apply_stylesheet(app, chosen_theme)
     window = ChemicalCalculator()
     window.show()
     sys.exit(app.exec_())                      
