@@ -8,7 +8,7 @@ pyinstaller -D -w ./MolCalculator.py --clean -i ./imgs/icons-64.png
 # 4. 输入分子化学式和分子数目，与体系大小(Å)，输出质量密度g/mL
 # 5. 添加Draw molecules, MolCalc和Molview三个WEB工具
 # 6. 添加元素周期表WEB网页
-
+# 7. 添加通过名称或者SMILES码搜索分子信息
 """
 import sys
 from PyQt5 import QtWidgets

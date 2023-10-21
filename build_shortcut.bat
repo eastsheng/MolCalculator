@@ -6,7 +6,7 @@ set LnkName=MolCalculator
  
 set WorkDir=%cd%
  
-set Desc=MolCalculator
+set Desc=Calculating molecular properties
 set icon=%cd%/imgs/icons-64.ico
 
 if not defined WorkDir call:GetWorkDir "%Program%"
