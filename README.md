@@ -30,5 +30,4 @@ bash MolCalculator.sh
 ```
 
 3. Double click `MolCalculator.bat` for windows (Recommended)
-   - Build a `Shortcut` with an icon ![](./imgs/icons-64.ico) by clicking `build_shortcut.bat`.
-
+   - Build a `Shortcut` with an icon ![](./imgs/icons-64.ico) by clicking `build_shortcut.bat`
