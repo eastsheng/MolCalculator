@@ -10,6 +10,7 @@ pyinstaller -D -w ./MolCalculator.py --clean -i ./imgs/icons-64.png
 # 6. 添加元素周期表WEB网页
 # 7. 添加通过名称或者SMILES码搜索分子信息
 """
+from qt_material import apply_stylesheet
 import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QHBoxLayout ,QVBoxLayout,QTabWidget,\
@@ -17,7 +18,6 @@ QTextEdit, QMenuBar, QMenu, QAction, QMessageBox, QWidget, QVBoxLayout, QLabel, 
 from PyQt5.QtGui import QColor, QFont, QIcon, QPixmap
 from PyQt5.QtCore import Qt, QCoreApplication, QSize, QUrl
 from PyQt5.QtWebEngineWidgets import QWebEngineView
-from qt_material import apply_stylesheet
 
 import scripts.cal_fraction as cf
 import scripts.FindCompounds as fc
@@ -42,7 +42,7 @@ class AboutDialog(QDialog):
         self.setMinimumSize(int(x/2), int((y+m)/3))
         layout = QVBoxLayout()
 
-        title = QLabel("MolCalculator")
+        title = QLabel("MolCalculator-1.0.3")
         title.setStyleSheet("font-size: 16px; color: #333333;font-family: Arial;")
         title.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
         layout.addWidget(title)
