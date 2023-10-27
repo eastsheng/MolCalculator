@@ -8,9 +8,12 @@ A python script based on molecular formula and molecular number to calculate mas
 ### Dependencies
 
 ```bash
-pip install periodictable
-pip install PyQt5
-pip install QWebEngineView
+periodictable>=1.6.1
+PyQt5>=5.15.9
+wxPython
+qt-material>=2.14
+pubchempy>=1.0.4
+rdkit>=2023.3.1
 ```
 
 
@@ -31,3 +34,5 @@ bash MolCalculator.sh
 
 3. Double click `MolCalculator.bat` for windows (Recommended)
    - Build a `Shortcut` with an icon ![](./imgs/icons-64.ico) by clicking `build_shortcut.bat`
+
+4. "[setup.exe](https://github.com/eastsheng/MolCalculator/releases/download/v1.0.3/MolCalculator-setup.exe)" and "[portable.zip](https://github.com/eastsheng/MolCalculator/releases/download/v1.0.3/MolCalculator-portable.zip)"
