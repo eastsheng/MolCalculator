@@ -1,5 +1,4 @@
 # pip install pyinstaller
-pyinstaller -D -w ./MolCalculator.py --clean -i ./imgs/icons-64.png
-cp -r ./imgs/ ./dist/MolCalculator/
-cp -r ./scripts/ ./dist/MolCalculator/
-cp -r ./temp/ ./dist/MolCalculator/
+# conda activate py3.12
+# pyinstaller -D -w ./MolCalculator.py -p ./scripts/cal_fraction.py  -p ./scripts/FindCompounds.py.py --clean  --add-data "./data; data"  --add-data "./imgs; imgs"  -i ./imgs/icons-64.png
+pyinstaller MolCalculator.spec

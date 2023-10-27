@@ -1,6 +1,4 @@
 """
-# 打包
-pyinstaller -D -w ./MolCalculator.py --clean -i ./imgs/icons-64.png
 # 一个分子计算器，可以实现：
 # 1. 输入化学式，输出摩尔质量
 # 2. 输入分子化学式和分子数目（至少两组），输出质量分数
@@ -10,15 +8,18 @@ pyinstaller -D -w ./MolCalculator.py --clean -i ./imgs/icons-64.png
 # 6. 添加元素周期表WEB网页
 # 7. 添加通过名称或者SMILES码搜索分子信息
 """
-from qt_material import apply_stylesheet
 import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QHBoxLayout ,QVBoxLayout,QTabWidget,\
 QTextEdit, QMenuBar, QMenu, QAction, QMessageBox, QWidget, QVBoxLayout, QLabel, QDialog, QComboBox
 from PyQt5.QtGui import QColor, QFont, QIcon, QPixmap
 from PyQt5.QtCore import Qt, QCoreApplication, QSize, QUrl
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+# from PyQt5.QtWebEngineWidgets import QWebEngineView
 
+import wx
+import wx.html2 as webview
+
+from qt_material import apply_stylesheet
 import scripts.cal_fraction as cf
 import scripts.FindCompounds as fc
 
@@ -31,6 +32,7 @@ px, py = 100,100
 x, y = 600, 350
 mx, my = 1920, 1080
 m = 10
+version_label = "MolCalculator-1.0.3"
 
 class AboutDialog(QDialog):
     def __init__(self):
@@ -42,7 +44,7 @@ class AboutDialog(QDialog):
         self.setMinimumSize(int(x/2), int((y+m)/3))
         layout = QVBoxLayout()
 
-        title = QLabel("MolCalculator-1.0.3")
+        title = QLabel(version_label)
         title.setStyleSheet("font-size: 16px; color: #333333;font-family: Arial;")
         title.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
         layout.addWidget(title)
@@ -72,7 +74,7 @@ class ChemicalCalculator(QMainWindow):
         self.initUI()
 
     def initUI(self):        
-        self.setWindowTitle("MolCalculator")
+        self.setWindowTitle(version_label)
         self.setWindowIcon(QIcon("./imgs/icons-64.png"))
         self.setGeometry(px, py, x, y+m)
         # self.setMinimumSize(x, y+m)
@@ -249,7 +251,7 @@ class ChemicalCalculator(QMainWindow):
         
         self.theme_combo = QComboBox()
         self.themes_names_dict = read_themes()
-        self.themes_names = list(self.themes_names_dict.keys())
+        self.themes_names = list(self.themes_names_dict.values())
         self.theme_combo.addItems(self.themes_names)
         self.theme_combo.setCurrentText(default_theme)
         themes_layout.addWidget(self.theme_combo)
@@ -358,8 +360,8 @@ class ChemicalCalculator(QMainWindow):
                 +name+"',there is no 'Name' or 'SMILES' in 'Pubchem' database")
         else:       
             for i in range(n):
-                imgs_list[i].save('./temp/temp.png')
-                image = QPixmap('./temp/temp.png').scaled(200, 200)
+                imgs_list[i].save('./imgs/temp/temp.png')
+                image = QPixmap('./imgs/temp/temp.png').scaled(200, 200)
                 self.display_label.setPixmap(image)
                 self.findmols_out_textbox.append("SMILES: "+str(infos_list[i]["smiles"]))
                 self.findmols_out_textbox.append("Formula: "+str(infos_list[i]["formula"]))
@@ -370,78 +372,118 @@ class ChemicalCalculator(QMainWindow):
 
     # online Periodic Table
     def open_periodictable(self):
-        self.periodictable = QWidget()
-        self.periodictable.setWindowTitle(self.PeriodicTable_title)
-        self.periodictable.setWindowIcon(QIcon("./imgs/periodictable.png"))
-        self.periodictable.setGeometry(200, 50, 1200, 900)
-        self.periodictable.setAttribute(Qt.WA_DeleteOnClose, False)
+        app = wx.App()
+        frame = wx.Frame(None, title=self.PeriodicTable_title,size=(1200, 900))
+        frame.SetIcon(wx.Icon("./imgs/periodictable.png", wx.BITMAP_TYPE_PNG))
+        browser = webview.WebView.New(frame)
+        browser.LoadURL("https://www.rsc.org/periodic-table")
 
-        layout = QVBoxLayout()
-        widget = QWidget(self.periodictable)
-        widget.setLayout(layout)
-        webview = QWebEngineView()
-        layout.addWidget(webview)
-        self.periodictable.setLayout(layout)
-        self.periodictable.show()
-        url = QUrl.fromUserInput("https://www.rsc.org/periodic-table")  # 替换为你想要嵌入的网页的URL
-        webview.load(url)
+        frame.Show()
+        app.MainLoop()
+
+        # self.periodictable = QWidget()
+        # self.periodictable.setWindowTitle(self.PeriodicTable_title)
+        # self.periodictable.setWindowIcon(QIcon("./imgs/periodictable.png"))
+        # self.periodictable.setGeometry(200, 50, 1200, 900)
+        # self.periodictable.setAttribute(Qt.WA_DeleteOnClose, False)
+
+        # layout = QVBoxLayout()
+        # widget = QWidget(self.periodictable)
+        # widget.setLayout(layout)
+        # webview = QWebEngineView()
+        # layout.addWidget(webview)
+        # self.periodictable.setLayout(layout)
+        # self.periodictable.show()
+        # # url = QUrl.fromUserInput("https://www.rsc.org/periodic-table")  # 替换为你想要嵌入的网页的URL
+        # webview.load(QUrl("https://www.rsc.org/periodic-table"))
 
 
     # draw molecules online
     def open_DrawMol(self):
-        self.DrawMol = QWidget()
-        self.DrawMol.setWindowTitle(self.online_molcalc_title)
-        self.DrawMol.setWindowIcon(QIcon("./imgs/draw_mol.png"))
-        self.DrawMol.setGeometry(200, 50, 1200, 900)
-        self.DrawMol.setAttribute(Qt.WA_DeleteOnClose, False)
 
-        layout = QVBoxLayout()
-        widget = QWidget(self.DrawMol)
-        widget.setLayout(layout)
-        webview = QWebEngineView()
-        layout.addWidget(webview)
-        self.DrawMol.setLayout(layout)
-        self.DrawMol.show()
-        url = QUrl.fromUserInput("https://chemoinfo.ipmc.cnrs.fr/LEA3D/drawonline.html")  # 替换为你想要嵌入的网页的URL
-        webview.load(url)
-        webview.setZoomFactor(1.8)
+        app = wx.App()
+        frame = wx.Frame(None, title=self.online_moldraw_title,size=(1200, 900))
+        frame.SetIcon(wx.Icon("./imgs/draw_mol.png", wx.BITMAP_TYPE_PNG))
+        browser = webview.WebView.New(frame)
+        browser.LoadURL("https://chemoinfo.ipmc.cnrs.fr/LEA3D/drawonline.html")
+
+        frame.Show()
+        app.MainLoop()
+
+        # self.DrawMol = QWidget()
+        # self.DrawMol.setWindowTitle(self.online_moldraw_title)
+        # self.DrawMol.setWindowIcon(QIcon("./imgs/draw_mol.png"))
+        # self.DrawMol.setGeometry(200, 50, 1200, 900)
+        # self.DrawMol.setAttribute(Qt.WA_DeleteOnClose, False)
+
+        # layout = QVBoxLayout()
+        # widget = QWidget(self.DrawMol)
+        # widget.setLayout(layout)
+        # webview = QWebEngineView()
+        # layout.addWidget(webview)
+        # self.DrawMol.setLayout(layout)
+        # self.DrawMol.show()
+        # # url = QUrl.fromUserInput("https://chemoinfo.ipmc.cnrs.fr/LEA3D/drawonline.html")  # 替换为你想要嵌入的网页的URL
+        # webview.load(QUrl("https://chemoinfo.ipmc.cnrs.fr/LEA3D/drawonline.html"))
+        # webview.setZoomFactor(1.8)
 
     # online_molcalc
     def open_MolCalc(self):
-        # self.molcalc = self.open_window("./imgs/online_molcalc.png",self.online_molcalc_title)
-        self.molcalc = QWidget()
-        self.molcalc.setWindowTitle(self.online_molcalc_title)
-        self.molcalc.setWindowIcon(QIcon("./imgs/online_molcalc.png"))
-        self.molcalc.setGeometry(200, 50, 1200, 900)
-        self.molcalc.setAttribute(Qt.WA_DeleteOnClose, False)
 
-        layout = QVBoxLayout()
-        widget = QWidget(self.molcalc)
-        widget.setLayout(layout)
-        webview = QWebEngineView()
-        layout.addWidget(webview)
-        self.molcalc.setLayout(layout)
-        self.molcalc.show()
-        url = QUrl.fromUserInput("https://molcalc.org")  # 替换为你想要嵌入的网页的URL
-        webview.load(url)
+        app = wx.App()
+        frame = wx.Frame(None, title=self.online_molcalc_title,size=(1200, 900))
+        frame.SetIcon(wx.Icon("./imgs/online_molcalc.png", wx.BITMAP_TYPE_PNG))
+        browser = webview.WebView.New(frame)
+        browser.LoadURL("https://molcalc.org")
+        
+        frame.Show()
+        app.MainLoop()
+
+        # # self.molcalc = self.open_window("./imgs/online_molcalc.png",self.online_molcalc_title)
+        # self.molcalc = QWidget()
+        # self.molcalc.setWindowTitle(self.online_molcalc_title)
+        # self.molcalc.setWindowIcon(QIcon("./imgs/online_molcalc.png"))
+        # self.molcalc.setGeometry(200, 50, 1200, 900)
+        # self.molcalc.setAttribute(Qt.WA_DeleteOnClose, False)
+
+        # layout = QVBoxLayout()
+        # widget = QWidget(self.molcalc)
+        # widget.setLayout(layout)
+        # webview = QWebEngineView()
+        # layout.addWidget(webview)
+        # self.molcalc.setLayout(layout)
+        # self.molcalc.show()
+        # # url = QUrl.fromUserInput("https://molcalc.org")  # 替换为你想要嵌入的网页的URL
+        # webview.load(QUrl("https://molcalc.org"))
+
 
     # online_molview
     def open_MolView(self):
-        self.molview = QWidget()
-        self.molview.setWindowTitle(self.online_molview_title)
-        self.molview.setWindowIcon(QIcon("./imgs/online_molview.png"))
-        self.molview.setGeometry(200, 50, 1300, 900)
-        self.molview.setAttribute(Qt.WA_DeleteOnClose, False)
 
-        layout = QVBoxLayout()
-        widget = QWidget(self.molview)
-        widget.setLayout(layout)
-        webview = QWebEngineView()
-        layout.addWidget(webview)
-        self.molview.setLayout(layout)
-        self.molview.show()
-        url = QUrl.fromUserInput("https://molview.org/")  # 替换为你想要嵌入的网页的URL
-        webview.load(url)
+        app = wx.App()
+        frame = wx.Frame(None, title=self.online_molview_title,size=(1300, 900))
+        frame.SetIcon(wx.Icon("./imgs/online_molview.png", wx.BITMAP_TYPE_PNG))
+        browser = webview.WebView.New(frame)
+        browser.LoadURL("https://molview.org")
+        
+        frame.Show()
+        app.MainLoop()
+
+        # self.molview = QWidget()
+        # self.molview.setWindowTitle(self.online_molview_title)
+        # self.molview.setWindowIcon(QIcon("./imgs/online_molview.png"))
+        # self.molview.setGeometry(200, 50, 1300, 900)
+        # self.molview.setAttribute(Qt.WA_DeleteOnClose, False)
+
+        # layout = QVBoxLayout()
+        # widget = QWidget(self.molview)
+        # widget.setLayout(layout)
+        # webview = QWebEngineView()
+        # layout.addWidget(webview)
+        # self.molview.setLayout(layout)
+        # self.molview.show()
+        # # url = QUrl.fromUserInput("https://molview.org/")  # 替换为你想要嵌入的网页的URL
+        # webview.load(QUrl("https://molview.org/"))
 
     # mass fractions
     def open_massfrac(self):
@@ -744,11 +786,12 @@ def read_themes():
     themes_names = {}
     names,files = [],[]
     for theme in themes:
-        name = theme.split(".")[0]
-        names.append(name) 
+        name = theme
+        names.append(name.split("\n")[0]) 
         files.append(theme.split("\n")[0]) 
     pairs = list(zip(names, files))
     themes_names = dict(pairs)
+
     return themes_names
 
 def read_choose_theme():
@@ -757,18 +800,18 @@ def read_choose_theme():
             chosen_theme = t.readlines()[0].split("\n")[0]
             print(chosen_theme,"theme was selected......")
     except:
-        print("Warning: Not found chosen theme......")
-        print("Warning: default "+default_theme+" theme was selected......")
         chosen_theme = default_theme
+        print("Warning: Not found chosen theme......")
+        print("Warning: default "+chosen_theme+" theme was selected......")
     
     return chosen_theme
 
 if __name__ == "__main__":
-    all_themes_file = "./scripts/themes"
-    chosen_theme_file = "./scripts/.theme"
+    all_themes_file = "./data/themes"
+    chosen_theme_file = "./data/.theme"
 
     default_theme = "light_blue.xml"
-    default_theme = default_theme.split(".")[0]
+
     app = QApplication(sys.argv)
     # setup stylesheet
     chosen_theme = read_choose_theme()
@@ -776,4 +819,4 @@ if __name__ == "__main__":
     apply_stylesheet(app, chosen_theme)
     window = ChemicalCalculator()
     window.show()
-    sys.exit(app.exec_())                      
+    sys.exit(app.exec_())
